@@ -31,7 +31,11 @@ export class Orchestrator {
             })
         );
 
-        return this.consolidate(results);
+        onUpdate('synthesis', 40);
+        const finalReport = await this.provider.synthesizeReport(results, params);
+        onUpdate('synthesis', 100);
+
+        return finalReport;
     }
 
     private consolidate(results: { id: string, data: string }[]): string {

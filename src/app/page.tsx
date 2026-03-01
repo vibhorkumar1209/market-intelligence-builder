@@ -13,6 +13,7 @@ const INITIAL_AGENTS: AgentStatus[] = [
   { id: 'tech', name: 'Technology Intelligence', status: 'idle', progress: 0 },
   { id: 'competitive', name: 'Competitive Landscape', status: 'idle', progress: 0 },
   { id: 'financial', name: 'Financial Model Agent', status: 'idle', progress: 0 },
+  { id: 'synthesis', name: 'Report Synthesis (GPT)', status: 'idle', progress: 0 },
 ];
 
 export default function Home() {
@@ -27,9 +28,13 @@ export default function Home() {
 
     const orch = new Orchestrator();
     const result = await orch.generateReport(params, (agentId, progress) => {
-      setAgents(prev => prev.map(a =>
-        a.id === agentId ? { ...a, progress, status: progress === 100 ? 'completed' : 'running' } : a
-      ));
+      setAgents(prev => {
+        // If agent doesn't exist in prev, don't update (safety)
+        if (!prev.find(a => a.id === agentId)) return prev;
+        return prev.map(a =>
+          a.id === agentId ? { ...a, progress, status: progress === 100 ? 'completed' : 'running' } : a
+        );
+      });
     });
 
     setReportContent(result);
