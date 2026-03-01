@@ -40,7 +40,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ onGenerate, isLoading }) =
                 <div className="p-2 bg-blue-600 rounded-lg">
                     <BarChart3 size={20} className="text-white" />
                 </div>
-                <h1 className="text-lg font-bold tracking-tight">Market Intelligence</h1>
+                <h1 className="text-lg font-bold tracking-tight">Market Intelligence Builder</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 space-y-6 overflow-y-auto pr-1">
