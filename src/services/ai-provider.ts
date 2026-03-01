@@ -10,10 +10,8 @@ export interface AIProvider {
     synthesizeReport(results: { id: string, data: string }[], params: ResearchParams): Promise<string>;
 }
 
-// Perplexity Implementation for Web Research
+// Perplexity Implementation for Web Research (via internal API)
 export class PerplexityProvider implements AIProvider {
-    private apiKey = process.env.NEXT_PUBLIC_PERPLEXITY_API_KEY || '4nWUcLljq5QHOD27uZSOr86S9XiUqkjzcCNinit1saNamNvq';
-
     private async callPerplexity(agentType: string, params: ResearchParams): Promise<string> {
         const prompt = `Research Agent: ${agentType}
 Industry: ${params.industry}
@@ -21,29 +19,32 @@ Sub-industry: ${params.subIndustry}
 Geography: ${params.geography}
 Timeframe: ${params.historicalYears}-${params.forecastYears}
 
-Task: Conduct deep web research and provide detailed market data, tables, and insights. Focus on credible sources and current year data.`;
+Task: Conduct deep web research and provide detailed market data. 
+Requirements:
+1. Provide specific numbers, market sizes, and CAGR where possible.
+2. Use Markdown Tables for any tabular data.
+3. Use bullet points for key insights.
+4. Cite sources (e.g., Gartner, Statista, Official Reports).
+5. Output valid Markdown.`;
 
         try {
-            const response = await fetch('https://api.perplexity.ai/chat/completions', {
+            const response = await fetch('/api/research', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'sonar-pro',
-                    messages: [
-                        { role: 'system', content: 'You are an elite market researcher.' },
-                        { role: 'user', content: prompt }
-                    ],
-                    temperature: 0.2,
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ agent_type: agentType, prompt })
             });
             const data = await response.json();
-            return data.choices[0].message.content;
+
+            if (data.error) {
+                const errMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
+                console.error(`Perplexity API error for ${agentType}:`, data.error);
+                return `[Error] Perplexity API: ${errMsg}`;
+            }
+
+            return data.choices?.[0]?.message?.content || "No research data returned.";
         } catch (error) {
-            console.error(`Perplexity error for ${agentType}:`, error);
-            return `[Error] Failed to fetch research from Perplexity for ${agentType}.`;
+            console.error(`Internal connection error for ${agentType}:`, error);
+            return `[Error] Failed to connect to research service for ${agentType}.`;
         }
     }
 
@@ -59,10 +60,8 @@ Task: Conduct deep web research and provide detailed market data, tables, and in
     }
 }
 
-// OpenAI Implementation for Report Synthesis
+// OpenAI Implementation for Report Synthesis (via internal API)
 export class OpenAIProvider implements AIProvider {
-    private apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY || '4nWUcLljq5QHOD27uZSOr86S9XiUqkjzcCNinit1saNamNvq';
-
     async runMarketSizing(params: ResearchParams): Promise<string> { return "Research handled by Perplexity."; }
     async runSegmentation(params: ResearchParams): Promise<string> { return "Research handled by Perplexity."; }
     async runTrends(params: ResearchParams): Promise<string> { return "Research handled by Perplexity."; }
@@ -71,43 +70,24 @@ export class OpenAIProvider implements AIProvider {
     async runFinancialModel(params: ResearchParams): Promise<string> { return "Research handled by Perplexity."; }
 
     async synthesizeReport(results: { id: string, data: string }[], params: ResearchParams): Promise<string> {
-        const fullContent = results.map(r => `Agent [${r.id}]:\n${r.data}`).join('\n\n');
-
-        const prompt = `You are a Senior Industry Analyst. Synthesize the following raw research into a professional, institutional-grade market report for the ${params.subIndustry} in ${params.industry} (${params.geography}).
-
-Research Data:
-${fullContent}
-
-Requirements:
-1. Executive Summary: High-level overview and key metrics.
-2. Market Dynamics: Deep dive into sizing, trends, and segments.
-3. Competitive Strategy: Intelligence and landscape.
-4. Strategic Outlook: 5-year projections.
-5. Appendices: Sources, methodology, and assumptions.
-
-Maintain professional formatting, clear headings, and insightful synthesis. Always output valid Markdown.`;
-
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const response = await fetch('/api/synthesize', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o',
-                    messages: [
-                        { role: 'system', content: 'You are an elite research synthesizer.' },
-                        { role: 'user', content: prompt }
-                    ],
-                    temperature: 0.5,
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ results, params })
             });
             const data = await response.json();
-            return data.choices[0].message.content;
+
+            if (data.error) {
+                const errMsg = typeof data.error === 'object' ? (data.error.message || JSON.stringify(data.error)) : data.error;
+                console.error("OpenAI API error:", data.error);
+                return `[Error] OpenAI API: ${errMsg}`;
+            }
+
+            return data.choices?.[0]?.message?.content || "Failed to synthesize report.";
         } catch (error) {
-            console.error("OpenAI error:", error);
-            return "Failed to synthesize report with OpenAI.";
+            console.error("Internal connection error for synthesis:", error);
+            return "Failed to connect to synthesis service.";
         }
     }
 }

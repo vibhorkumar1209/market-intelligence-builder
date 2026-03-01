@@ -1,6 +1,6 @@
-'use client';
-
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { AgentStatus } from '@/types';
 import { Download, FileText, BarChart, Printer } from 'lucide-react';
 
@@ -58,31 +58,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({ reportContent, agents, i
                         </div>
                     </div>
 
-                    <div className="prose prose-slate max-w-none">
-                        {/* Sample Section - This will be replaced by dynamic data */}
-                        <div className="mb-12">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-6">1. Executive Summary</h2>
-                            <p className="text-slate-700 leading-relaxed mb-4">
-                                This comprehensive market intelligence report provides a strategic analysis of the target industry across
-                                multiple dimensions including market sizing, competitive landscape, technology intelligence, and future forecasts.
-                            </p>
-                            <div className="grid grid-cols-3 gap-6 my-8">
-                                {[
-                                    { label: 'Market Opportunity', value: '$254B', sub: 'by 2028' },
-                                    { label: 'Growth Rating', value: 'High', sub: 'Institutional Grade' },
-                                    { label: 'CAGR (2023-28)', value: '18.4%', sub: 'Foreasted' },
-                                ].map((stat, i) => (
-                                    <div key={i} className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{stat.label}</p>
-                                        <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{stat.sub}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Content areas for table and charts will go here */}
-                        {reportContent}
+                    <div className="prose prose-slate max-w-none 
+                        prose-headings:text-slate-900 
+                        prose-p:text-slate-700 
+                        prose-strong:text-slate-900 
+                        prose-ul:list-disc prose-ul:pl-5
+                        prose-table:border-collapse prose-table:border prose-table:border-slate-200
+                        prose-th:bg-slate-50 prose-th:p-2 prose-th:border prose-th:border-slate-200
+                        prose-td:p-2 prose-td:border prose-td:border-slate-200">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{reportContent}</ReactMarkdown>
                     </div>
                 </article>
             ) : (
