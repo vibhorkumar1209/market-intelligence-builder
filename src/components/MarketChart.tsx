@@ -6,13 +6,16 @@ import {
 } from 'recharts';
 
 interface MarketChartProps {
-    data: { name: string, value: number }[];
+    data: any[];
+    keys: string[];
     title: string;
     type?: 'bar' | 'line';
     insights?: string[];
 }
 
-export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'bar', insights }) => {
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#ef4444', '#14b8a6'];
+
+export const MarketChart: React.FC<MarketChartProps> = ({ data, keys, title, type = 'bar', insights }) => {
     return (
         <div className="my-8 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
             <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">{title}</h3>
@@ -26,7 +29,10 @@ export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'b
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                             />
-                            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                            <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }} />
+                            {keys.map((key, idx) => (
+                                <Bar key={key} dataKey={key} fill={COLORS[idx % COLORS.length]} radius={[4, 4, 0, 0]} />
+                            ))}
                         </BarChart>
                     ) : (
                         <LineChart data={data}>
@@ -36,11 +42,15 @@ export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'b
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                             />
-                            <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} />
+                            <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }} />
+                            {keys.map((key, idx) => (
+                                <Line key={key} type="monotone" dataKey={key} stroke={COLORS[idx % COLORS.length]} strokeWidth={3} dot={{ r: 4, fill: COLORS[idx % COLORS.length] }} />
+                            ))}
                         </LineChart>
                     )}
                 </ResponsiveContainer>
             </div>
+
             <div className="mt-6 pt-6 border-t border-slate-50">
                 <p className="text-xs font-bold text-slate-400 uppercase mb-3 px-1">Key Insights</p>
                 <ul className="space-y-2">

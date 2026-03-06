@@ -108,7 +108,13 @@ REPORT REQUIREMENTS:
    - RENDER A STRICT MARKDOWN TABLE for Geography / Regional breakdown.
    - Provide narrative insights on which segments to overweight vs underweight.
 
-### 5. RESEARCH EXPERT WALKTHROUGH & METHODOLOGY
+### 5. MARKET TRENDS, DRIVERS & BARRIERS
+   - RENDER A STRICT MARKDOWN TABLE for Key Trends/Drivers. Format MUST be exactly:
+     | Trigger | Impact on Market | Description | Example / Backing Info |
+   - Include 3 to 5 critical factors.
+   - Beneath the table, output an "Analyst Synthesis" block.
+
+### 6. RESEARCH EXPERT WALKTHROUGH & METHODOLOGY
    - Detail the explicit Top-Down & Bottom-Up estimation logic used to derive these figures.
    - Provide a "Source Credibility Matrix" detailing anchors used (Government, Corporate, Associations).
    - Detail the margin of error and critical data gaps.
@@ -121,7 +127,7 @@ CRITICAL RULES:
 | Data 1       | 100.0      | 45.0%            |
 | Data 2       | 120.5      | 55.0%            |
 - DO NOT use generic ranges. If raw data is missing, perform robust, defensible PROXY estimations. 
-- You MUST output at least 5 Markdown tables. The UI parser relies on them.
+- You MUST output at least 6 Markdown tables. The UI parser relies on them.
 - NO FILLER. NO FLUFF. Maintain a dense, authoritative, and deeply quantified tone.
 `;
             const rawReport = await this.openai.synthesize(synthesisPrompt, results);

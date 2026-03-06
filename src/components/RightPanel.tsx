@@ -40,8 +40,8 @@ const getTableContent = (children: any): string => {
 
 const MarkdownTable = ({ children }: any) => {
     const tableString = getTableContent(children);
-    const chartData = parseMarkdownTableToChartData(tableString);
-    const showChart = chartData.length >= 3;
+    const parsedChart = parseMarkdownTableToChartData(tableString);
+    const showChart = parsedChart.data.length >= 3 && parsedChart.keys.length > 0;
 
     return (
         <div className="my-8">
@@ -52,9 +52,10 @@ const MarkdownTable = ({ children }: any) => {
             </div>
             {showChart && (
                 <MarketChart
-                    data={chartData}
+                    data={parsedChart.data}
+                    keys={parsedChart.keys}
                     title="Data Visualization"
-                    type={chartData.length > 5 ? 'line' : 'bar'}
+                    type={parsedChart.data.length > 5 ? 'line' : 'bar'}
                 />
             )}
         </div>
