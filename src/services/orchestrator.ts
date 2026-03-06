@@ -85,34 +85,44 @@ export class Orchestrator {
             // FINAL SYNTHESIS
             onUpdate('synthesis', 20);
             const synthesisPrompt = `
-You are a Principal at McKinsey. Synthesize a MASTER INVESTMENT-GRADE DATAPACK REPORT for: ${params.industry}. 
+You are an Elite Principal Analyst (ex-Gartner/McKinsey) specialized in Tech Spend and Institutional Market Architecture. Synthesize a MASTER INVESTMENT-GRADE DATAPACK REPORT for: ${params.industry}. 
 
 Use the following segmented intelligence: ${JSON.stringify(results)}.
 
 REPORT REQUIREMENTS:
-1. EXECUTIVE SUMMARY: High-level institutional pitch.
-2. MARKET TAXONOMY: Detailed breakdown of the product scope and geography.
-3. DATA ANCHORS: List the hard data points found during sourcing.
-4. QUANTIFIED MARKET SIZE: 
+### 1. EXECUTIVE SUMMARY & MARKET DEFINITION
+   - High-level institutional pitch outlining TAM, SAM, SOM.
+   - Core market bounds (what is included vs excluded).
+
+### 2. QUANTIFIED MARKET SIZING & FORECAST
    - RENDER A STRICT MARKDOWN TABLE for Consolidated Market (Volume/Value) over 5 base/forecast years.
+   - RENDER A STRICT MARKDOWN TABLE for Forecasted Growth CAGR by segment.
+   - Beneath every table, output an "Analyst Synthesis" block with 3 quantified drivers justifying the numbers.
+
+### 3. COMPETITIVE LANDSCAPE & SUPPLIER SHARES
    - RENDER A STRICT MARKDOWN TABLE for Top Suppliers & Market Shares.
-   - RENDER A STRICT MARKDOWN TABLE for Forecasted Growth CAGR.
-   - Write 3-5 high-impact "Analyst Insights" after each table.
-5. SEGMENTATION ANALYSIS:
-   - RENDER A STRICT MARKDOWN TABLE for Primary Axis.
-   - RENDER A STRICT MARKDOWN TABLE for Geography.
-6. METHODOLOGY & CONFIDENCE: Logic chain and error margins.
+   - Provide strategic positioning (Leaders, Niche players) and revenue concentration.
+
+### 4. SEGMENTATION AXIS ANALYSIS
+   - RENDER A STRICT MARKDOWN TABLE for Primary Product/Service Axis.
+   - RENDER A STRICT MARKDOWN TABLE for Geography / Regional breakdown.
+   - Provide narrative insights on which segments to overweight vs underweight.
+
+### 5. RESEARCH EXPERT WALKTHROUGH & METHODOLOGY
+   - Detail the explicit Top-Down & Bottom-Up estimation logic used to derive these figures.
+   - Provide a "Source Credibility Matrix" detailing anchors used (Government, Corporate, Associations).
+   - Detail the margin of error and critical data gaps.
+   - Explain the arithmetic logic (e.g., Price × Volume definitions used).
 
 CRITICAL RULES:
 - YOU MUST USE PERFECT MARKDOWN TABLES FOR ALL DATA. Format them EXACTLY like this:
 | Segment/Year | Value ($B) | Market Share (%) |
 |--------------|------------|------------------|
-| Data 1       | 100        | 45%              |
-| Data 2       | 120        | 55%              |
-- YOU ABSOLUTELY MUST output at least 4 Markdown tables.
-- If raw data is missing, perform high-confidence strategic estimates to fill the tables. Do NOT write "Data not available", you must populate the tables with educated estimates.
-- The UI parser reads Markdown tables to build the charts. If you fail to write a Markdown table, the charts will break.
-- NO FILLER. NO FLUFF.
+| Data 1       | 100.0      | 45.0%            |
+| Data 2       | 120.5      | 55.0%            |
+- DO NOT use generic ranges. If raw data is missing, perform robust, defensible PROXY estimations. 
+- You MUST output at least 5 Markdown tables. The UI parser relies on them.
+- NO FILLER. NO FLUFF. Maintain a dense, authoritative, and deeply quantified tone.
 `;
             const rawReport = await this.openai.synthesize(synthesisPrompt, results);
             onUpdate('synthesis', 70);
