@@ -9,9 +9,10 @@ interface MarketChartProps {
     data: { name: string, value: number }[];
     title: string;
     type?: 'bar' | 'line';
+    insights?: string[];
 }
 
-export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'bar' }) => {
+export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'bar', insights }) => {
     return (
         <div className="my-8 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
             <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">{title}</h3>
@@ -43,14 +44,15 @@ export const MarketChart: React.FC<MarketChartProps> = ({ data, title, type = 'b
             <div className="mt-6 pt-6 border-t border-slate-50">
                 <p className="text-xs font-bold text-slate-400 uppercase mb-3 px-1">Key Insights</p>
                 <ul className="space-y-2">
-                    <li className="text-sm text-slate-600 flex gap-2">
-                        <span className="text-blue-500 font-bold">•</span>
-                        Significant growth acceleration observed in the forecast period.
-                    </li>
-                    <li className="text-sm text-slate-600 flex gap-2">
-                        <span className="text-blue-500 font-bold">•</span>
-                        Market leader maintain strong position while new entrants gain traction.
-                    </li>
+                    {(insights || [
+                        "Significant growth acceleration observed in the forecast period.",
+                        "Market leader maintain strong position while new entrants gain traction."
+                    ]).map((insight, idx) => (
+                        <li key={idx} className="text-sm text-slate-600 flex gap-2">
+                            <span className="text-blue-500 font-bold">•</span>
+                            {insight}
+                        </li>
+                    ))}
                 </ul>
             </div>
         </div>

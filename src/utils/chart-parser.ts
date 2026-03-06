@@ -11,10 +11,14 @@ export const parseMarkdownTableToChartData = (markdown: string): ChartDataPoint[
 
     // Assuming format | Month/Year | Value |
     return rows.slice(1).map(row => {
-        const cells = row.split('|').map(c => c.trim()).filter(Boolean);
-        return {
-            name: cells[0],
-            value: parseFloat(cells[1].replace(/[^0-9.-]/g, '')) || 0
-        };
-    });
+        const cells = row.split('|').map(c => c.trim()).filter(c => c !== '');
+        if (cells.length < 2) return null;
+
+        const name = cells[0];
+        // Remove currency symbols, commas, and percentage signs
+        const valueStr = cells[1].replace(/[$,%]/g, '').trim();
+        const value = parseFloat(valueStr) || 0;
+
+        return { name, value };
+    }).filter((p): p is ChartDataPoint => p !== null && !isNaN(p.value));
 };

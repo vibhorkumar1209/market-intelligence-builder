@@ -1,30 +1,18 @@
-export type IndustryCategory =
-    | 'Technology'
-    | 'Healthcare'
-    | 'Energy'
-    | 'Financial Services'
-    | 'Manufacturing'
-    | 'Consumer Goods'
-    | 'Automotive'
-    | 'Telecom'
-    | 'Agriculture'
-    | 'Custom';
-
-export type OutputType =
-    | 'Full Industry Report'
-    | 'Executive Summary Only'
-    | 'Financial Model Only'
-    | 'Segmentation Deep Dive'
-    | 'Tech Intelligence Only';
+export type MarketType = 'equipment' | 'materials' | 'components' | 'services' | 'hybrid';
 
 export interface ResearchParams {
-    industry: IndustryCategory;
-    customIndustry?: string;
-    subIndustry: string;
+    industry: string;
+    subCategory?: string;
     geography: string;
-    historicalYears: number;
-    forecastYears: number;
-    outputType: OutputType;
+
+    // Advanced Settings
+    baseYearOverride?: string;
+    forecastQuarters?: number;
+    geographicGranularity?: 'Region only' | 'State / Province' | 'City tier';
+    supplierDetail?: 'Top 5 + Others' | 'Top 8 + Others' | 'Top 10+ (deep competitive view)';
+    dualCurrency?: boolean;
+    excludeSyndicatedSources?: boolean;
+    additionalContext?: string;
 }
 
 export interface AgentStatus {
