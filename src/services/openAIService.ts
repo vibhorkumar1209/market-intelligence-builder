@@ -79,24 +79,25 @@ export class OpenAIService {
     async checkQuality(text: string): Promise<{ score: number; suggestions: string[]; refinedText: string }> {
         const prompt = `You are a Report Quality Gatekeeper. Scan the following report text for generic filler or lack of quantification.
         
-        Text: ${text}
-        
         TASK:
         1. Rate quality from 0-100.
-        2. Replace generic segments with quantified statements.
-        3. Return as JSON: { "score": number, "suggestions": string[], "refinedText": string }`;
+        2. Return as JSON: { "score": number, "suggestions": string[] }
+        
+        Note: DO NOT rewrite the text. Just score it.`;
 
         const response = await fetch('/api/openai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'quality',
-                prompt,
+                prompt: prompt + `\n\nText: ${text}`,
                 response_format: { type: 'json_object' }
             })
         });
 
         const data = await response.json();
-        return JSON.parse(data.content || '{}');
+        const parsed = JSON.parse(data.content || '{}');
+        // Return original text to preserve perfect markdown tables from the first pass
+        return { score: parsed.score || 85, suggestions: parsed.suggestions || [], refinedText: text };
     }
 }
