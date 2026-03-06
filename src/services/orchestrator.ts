@@ -7,6 +7,7 @@ import { runTaxonomyBuilderAgent } from '@/agents/taxonomyBuilderAgent';
 import { runDataSourcingAgent } from '@/agents/dataSourcingAgent';
 import { runSizingEngineAgent } from '@/agents/sizingEngineAgent';
 import { runMethodologyAgent } from '@/agents/methodologyAgent';
+import { AGENT_SCHEMAS } from './schemas';
 
 export class Orchestrator {
     private parallel: ParallelAIService;
@@ -26,7 +27,7 @@ export class Orchestrator {
             const callParallelResolver = (prompt: string) => this.parallel.runAgentTask('resolver', prompt);
             const rawResolver = await runIndustryResolverAgent(params, callParallelResolver);
             onUpdate('resolver', 50);
-            const resolvedScope = await this.openai.structureData(rawResolver, 'resolver', "");
+            const resolvedScope = await this.openai.structureData(rawResolver, 'resolver', AGENT_SCHEMAS.resolver);
             results['resolver'] = resolvedScope;
             onUpdate('resolver', 100);
 
@@ -42,7 +43,7 @@ export class Orchestrator {
             const callParallelTaxonomy = (prompt: string) => this.parallel.runAgentTask('taxonomy', prompt);
             const rawTaxonomy = await runTaxonomyBuilderAgent(params, resolvedScope, callParallelTaxonomy);
             onUpdate('taxonomy', 50);
-            const taxonomy = await this.openai.structureData(rawTaxonomy, 'taxonomy', "");
+            const taxonomy = await this.openai.structureData(rawTaxonomy, 'taxonomy', AGENT_SCHEMAS.taxonomy);
             results['taxonomy'] = taxonomy;
             onUpdate('taxonomy', 100);
 
@@ -54,8 +55,8 @@ export class Orchestrator {
                 runDataSourcingAgent(params, resolvedScope, taxonomy, 'pricing', callParallelSourcing)
             ]);
             onUpdate('sourcing', 50);
-            const anchorsVol = await this.openai.structureData(rawVol, 'anchors_volume', "");
-            const anchorsPrice = await this.openai.structureData(rawPrice, 'anchors_pricing', "");
+            const anchorsVol = await this.openai.structureData(rawVol, 'anchors_volume', AGENT_SCHEMAS.anchors_volume);
+            const anchorsPrice = await this.openai.structureData(rawPrice, 'anchors_pricing', AGENT_SCHEMAS.anchors_pricing);
             const mergedAnchors = [...(Array.isArray(anchorsVol) ? anchorsVol : []), ...(Array.isArray(anchorsPrice) ? anchorsPrice : [])];
             results['sourcing'] = mergedAnchors;
             onUpdate('sourcing', 100);
@@ -65,7 +66,7 @@ export class Orchestrator {
             const callParallelSizing = (prompt: string) => this.parallel.runAgentTask('sizing', prompt);
             const rawSizing = await runSizingEngineAgent(params, resolvedScope, taxonomy, mergedAnchors, callParallelSizing);
             onUpdate('sizing', 50);
-            const sizing = await this.openai.structureData(rawSizing, 'sizing', "");
+            const sizing = await this.openai.structureData(rawSizing, 'sizing', AGENT_SCHEMAS.sizing);
             results['sizing'] = sizing;
             onUpdate('sizing', 100);
 
@@ -77,13 +78,42 @@ export class Orchestrator {
             const callParallelMethod = (prompt: string) => this.parallel.runAgentTask('methodology', prompt);
             const rawMethod = await runMethodologyAgent(params, resolvedScope, taxonomy, mergedAnchors, sizing, callParallelMethod);
             onUpdate('methodology', 50);
-            const methodology = await this.openai.structureData(rawMethod, 'methodology', "");
+            const methodology = await this.openai.structureData(rawMethod, 'methodology', AGENT_SCHEMAS.methodology);
             results['methodology'] = methodology;
             onUpdate('methodology', 100);
 
             // FINAL SYNTHESIS
             onUpdate('synthesis', 20);
-            const synthesisPrompt = `You are a Principal at McKinsey. Synthesize a MASTER INVESTMENT-GRADE DATAPACK REPORT for: ${params.industry}. Use the following segmented intelligence: ${JSON.stringify(results)}. ENSURE NO FILLER.`;
+            const synthesisPrompt = `
+You are a Principal at McKinsey. Synthesize a MASTER INVESTMENT-GRADE DATAPACK REPORT for: ${params.industry}. 
+
+Use the following segmented intelligence: ${JSON.stringify(results)}.
+
+REPORT REQUIREMENTS:
+1. EXECUTIVE SUMMARY: High-level institutional pitch.
+2. MARKET TAXONOMY: Detailed breakdown of the product scope and geography.
+3. DATA ANCHORS: List the hard data points found during sourcing.
+4. QUANTIFIED MARKET SIZE: 
+   - RENDER A STRICT MARKDOWN TABLE for Consolidated Market (Volume/Value) over 5 base/forecast years.
+   - RENDER A STRICT MARKDOWN TABLE for Top Suppliers & Market Shares.
+   - RENDER A STRICT MARKDOWN TABLE for Forecasted Growth CAGR.
+   - Write 3-5 high-impact "Analyst Insights" after each table.
+5. SEGMENTATION ANALYSIS:
+   - RENDER A STRICT MARKDOWN TABLE for Primary Axis.
+   - RENDER A STRICT MARKDOWN TABLE for Geography.
+6. METHODOLOGY & CONFIDENCE: Logic chain and error margins.
+
+CRITICAL RULES:
+- YOU MUST USE PERFECT MARKDOWN TABLES FOR ALL DATA. Format them EXACTLY like this:
+| Segment/Year | Value ($B) | Market Share (%) |
+|--------------|------------|------------------|
+| Data 1       | 100        | 45%              |
+| Data 2       | 120        | 55%              |
+- YOU ABSOLUTELY MUST output at least 4 Markdown tables.
+- If raw data is missing, perform high-confidence strategic estimates to fill the tables. Do NOT write "Data not available", you must populate the tables with educated estimates.
+- The UI parser reads Markdown tables to build the charts. If you fail to write a Markdown table, the charts will break.
+- NO FILLER. NO FLUFF.
+`;
             const rawReport = await this.openai.synthesize(synthesisPrompt, results);
             onUpdate('synthesis', 70);
             const qualityResult = await this.openai.checkQuality(rawReport);
