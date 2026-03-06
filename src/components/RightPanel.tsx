@@ -45,8 +45,8 @@ const MarkdownTable = ({ children }: any) => {
 
     return (
         <div className="my-8">
-            <div className="overflow-x-auto border border-slate-200 rounded-xl mb-6">
-                <table className="min-w-full divide-y divide-slate-200">
+            <div className="overflow-x-auto border border-slate-200 rounded-xl mb-6 shadow-sm">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
                     {children}
                 </table>
             </div>
@@ -55,7 +55,7 @@ const MarkdownTable = ({ children }: any) => {
                     data={parsedChart.data}
                     keys={parsedChart.keys}
                     title="Data Visualization"
-                    type={parsedChart.data.length > 5 ? 'line' : 'bar'}
+                    type={parsedChart.recommendedType}
                 />
             )}
         </div>
