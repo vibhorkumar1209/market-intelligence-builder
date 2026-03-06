@@ -108,13 +108,25 @@ REPORT REQUIREMENTS:
    - RENDER A STRICT MARKDOWN TABLE for Geography / Regional breakdown.
    - Provide narrative insights on which segments to overweight vs underweight.
 
-### 5. MARKET TRENDS, DRIVERS & BARRIERS
-   - RENDER A STRICT MARKDOWN TABLE for Key Trends/Drivers. Format MUST be exactly:
-     | Trigger | Impact on Market | Description | Example / Backing Info |
-   - Include 3 to 5 critical factors.
-   - Beneath the table, output an "Analyst Synthesis" block.
+### 5. MARKET TRENDS
+   - RENDER A STRICT MARKDOWN TABLE for Key Market Trends. Format MUST be exactly:
+     | Trigger Type | Trend Name | Impact on Market | Detailed Description (50+ words) & Examples |
+   - Include 5 to 10 distinct trends (e.g., Supply-related, demand-related, commercial, pricing, regulatory).
+   - Ensure the "Detailed Description" is highly explanatory (min 50-60 words per row).
 
-### 6. RESEARCH EXPERT WALKTHROUGH & METHODOLOGY
+### 6. MARKET DRIVERS
+   - RENDER A STRICT MARKDOWN TABLE for Key Growth Drivers. Format MUST be exactly:
+     | Trigger Type | Driver Name | Impact on Market | Detailed Description (50+ words) & Examples |
+   - Include 5 to 10 distinct growth drivers.
+   - Ensure the "Detailed Description" provides rigorous examples and mechanism of action (min 50-60 words per row).
+
+### 7. MARKET BARRIERS
+   - RENDER A STRICT MARKDOWN TABLE for Key Barriers/Risks. Format MUST be exactly:
+     | Trigger Type | Barrier Name | Impact on Market | Detailed Description (50+ words) & Examples |
+   - Include 5 to 10 distinct barriers or headwinds.
+   - Detail the strategic impact and examples for each barrier (min 50-60 words per row).
+
+### 8. RESEARCH EXPERT WALKTHROUGH & METHODOLOGY
    - Detail the explicit Top-Down & Bottom-Up estimation logic used to derive these figures.
    - Provide a "Source Credibility Matrix" detailing anchors used (Government, Corporate, Associations).
    - Detail the margin of error and critical data gaps.
@@ -127,7 +139,7 @@ CRITICAL RULES:
 | Data 1       | 100.0      | 45.0%            |
 | Data 2       | 120.5      | 55.0%            |
 - DO NOT use generic ranges. If raw data is missing, perform robust, defensible PROXY estimations. 
-- You MUST output at least 6 Markdown tables. The UI parser relies on them.
+- You MUST output at least 8 Markdown tables. The UI parser relies on them.
 - NO FILLER. NO FLUFF. Maintain a dense, authoritative, and deeply quantified tone.
 `;
             const rawReport = await this.openai.synthesize(synthesisPrompt, results);
